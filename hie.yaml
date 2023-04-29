@@ -1,0 +1,10 @@
+cradle:
+  stack:
+    - path: "./recursionSchemes"
+      component: "Emraors:lib"
+
+    - path: "./arrows"
+      component: "Emraors:lib"
+
+    - path: "./freeMonads"
+      component: "Emraors:lib"
