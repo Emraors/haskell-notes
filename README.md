@@ -1,2 +1,2 @@
 # haskell-notes
-Semi-random haskell notes from papers 
+Semi-random Haskell notes that I am collecting on my way to learning Haskell.
