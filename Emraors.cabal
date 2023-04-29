@@ -13,15 +13,18 @@ library
   exposed-modules:
       RecursionSchemes
       Arrows
+      FreeMonads
   other-modules:
       Paths_Emraors
   hs-source-dirs:
       recursionSchemes
       arrows
+      freeMonads
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -Wno-unused-top-binds
   build-depends:
       QuickCheck
     , base >=4.7 && <5
+    , free
     , hspec
     , mtl
     , transformers
