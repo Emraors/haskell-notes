@@ -1,13 +1,11 @@
+{-# LANGUAGE DeriveFunctor #-}
 module FreeMonads () where
 
 import Control.Monad.Free
 
 data StackF a = Push Int a
               | Pop (Int -> a)
-
-instance Functor StackF where
-  fmap f (Push n a) = Push n (f a)
-  fmap f (Pop g) = Pop (f . g)
+              deriving (Functor)
 
 type Stack = Free StackF
 
@@ -35,5 +33,50 @@ example = do
 errorExample :: Stack Int
 errorExample = do
   push 10
+  _ <- pop
   pop
-  pop
+
+
+data ExprF a = Print String a
+             | Read (String -> a)
+             | Add Int Int (Int -> a)
+             | Mul Int Int (Int -> a)
+             deriving (Functor)
+
+type Expr = Free ExprF
+
+print' :: String -> Expr ()
+print' s = liftF $ Print s ()
+
+read' :: Expr String
+read' = liftF $ Read id
+
+add :: Int -> Int -> Expr Int
+add x y = liftF $ Add x y id
+
+mul :: Int -> Int -> Expr Int
+mul x y = liftF $ Mul x y id
+
+runExpr :: Show a => Expr a -> IO a
+runExpr (Pure a) = return a
+runExpr (Free (Print s a)) = putStrLn s >> runExpr a
+runExpr (Free (Read f)) = getLine >>= runExpr . f
+runExpr (Free (Add x y f)) = runExpr $ add x y >>= f
+runExpr (Free (Mul x y f)) = runExpr $ mul x y >>= f
+
+--- Example of Expr, should print "Hello World" and return 42 when run with runExpr
+
+example' :: Expr Int
+example' = do
+  print' "Hello World"
+  x <- add 20 22
+  return x
+
+program :: IO Int
+program = runExpr example'
+
+
+
+
+
+
