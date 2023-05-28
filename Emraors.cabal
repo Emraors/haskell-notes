@@ -15,6 +15,7 @@ library
       Arrows
       FreeMonads
       LambdaCalculus
+      ReaderMonad
   other-modules:
       Paths_Emraors
   hs-source-dirs:

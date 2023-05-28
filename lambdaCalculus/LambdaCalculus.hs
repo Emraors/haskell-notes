@@ -1,6 +1,8 @@
+{-# OPTIONS_GHC -Wno-type-defaults #-}
 module LambdaCalculus () where
 
 import Data.List (nub, (\\), union)
+
 
 type VarName = String
 
@@ -45,21 +47,91 @@ usedVars (App t1 t2) = usedVars t1 `union` usedVars t2
 allVarNames :: [VarName]
 allVarNames = ["x" ++ show n | n <- [1..]]
 
-apply :: Term -> Term
-apply (App (Lambda x t12) v2@(Lambda _ _)) = subst x t12 v2
-apply (App v1@(Lambda _ _) t2) = let t2' = apply t2 in App v1 t2'
-apply (App t1 t2) = let t1' = apply t1 in App t1' t2
-apply _ = error "Not an application"
+isValue :: Term -> Bool
+isValue (Lambda _ _) = True
+isValue _ = False
 
 
-lctest1 :: Term
-lctest1 = Lambda "f" (Lambda "x" (Var "x"))
+{-
+betaReduce :: Term -> Maybe Term
+betaReduce (App (Lambda x t1) t2) = Just $ subst x t1 t2
+betaReduce (App t1 t2) = App <$> betaReduce t1 <*> betaReduce t2
+betaReduce (Lambda x t) = Lambda x <$> betaReduce t
+betaReduce _ = Nothing
 
-lctest2 :: Term
-lctest2 = App (App lctest1 lctest1) (Lambda "y" (Var "y"))
+termEval :: Term -> Term
+termEval t = maybe t termEval (betaReduce t)
+-}
 
-lctest4 :: Term
-lctest4 = App (Lambda "x" (Lambda "y" (Var "y"))) (Lambda "x" (Var "y"))
+betaReduce :: Term -> Term
+betaReduce (App (Lambda x t1) t2) = subst x t1 t2
+betaReduce (App t1 t2) = App (betaReduce t1) (betaReduce t2)
+betaReduce (Lambda x t) = Lambda x (betaReduce t)
+betaReduce t = t
 
-lctest5 :: Term
-lctest5 = App (Lambda "x" (Lambda "z" (Var "z"))) (Lambda "x" (Var "y"))
+termEval :: Term -> Term
+termEval t =
+    let t' = betaReduce t
+    in if t' == t then t else termEval t'
+
+and' :: Term
+and' = Lambda "x" (Lambda "y" (App (App (Var "x") (Var "y")) (Var "x")))
+
+true' :: Term
+true' = Lambda "x" (Lambda "y" (Var "x"))
+
+false' :: Term
+false' = Lambda "x" (Lambda "y" (Var "y"))
+
+
+andTest1 :: Term
+andTest1 = App (App and' true') false'
+
+
+
+zero' :: Term
+zero' = Lambda "f" (Lambda "x" (Var "x"))
+
+one'' :: Term
+one'' = Lambda "f" (Lambda "x" (App (Var "f") (Var "x")))
+
+succ' :: Term
+succ' = Lambda "n" (Lambda "g" (Lambda "y" (App (Var "g") (App (App (Var "n") (Var "g")) (Var "y")))))
+
+
+one' :: Term
+one' = App succ' zero'
+
+
+prova :: Term
+prova = Lambda "f" (Lambda "x" (App (Var "f") (App (App zero' (Var "f")) (Var "x"))))
+
+
+type Env = [(VarName, Term)]
+
+-- Evaluate a lambda calculus expression with the given environment
+eval :: Env -> Term -> Term
+eval env (Var x) = case lookup x env of
+  Just v -> v
+  Nothing -> Var x
+eval env (Lambda x body) = Lambda x (eval env body)
+eval env (App func arg) = case eval env func of
+  Lambda x body -> eval ((x, eval env arg) : env) body
+  func' -> App func' (eval env arg)
+
+
+lambdaTerm :: Term
+lambdaTerm = App (Lambda "x" (Lambda "y" (App (Var "x") (Var "y")))) (Lambda "z" (Var "z"))
+
+-- Example environment
+environment :: Env
+environment = [] --[("z", Var "w")]
+
+-- Evaluate the lambda term with the environment
+result :: Term
+result = eval environment lambdaTerm
+
+
+rr = App (Lambda "x" (Lambda "y" (Var "y"))) (Lambda "x" (Var "y"))
+
+lctest = App  (Lambda "y" (Var "y")) (Var "x")
