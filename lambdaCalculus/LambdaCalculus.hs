@@ -103,35 +103,3 @@ one' :: Term
 one' = App succ' zero'
 
 
-prova :: Term
-prova = Lambda "f" (Lambda "x" (App (Var "f") (App (App zero' (Var "f")) (Var "x"))))
-
-
-type Env = [(VarName, Term)]
-
--- Evaluate a lambda calculus expression with the given environment
-eval :: Env -> Term -> Term
-eval env (Var x) = case lookup x env of
-  Just v -> v
-  Nothing -> Var x
-eval env (Lambda x body) = Lambda x (eval env body)
-eval env (App func arg) = case eval env func of
-  Lambda x body -> eval ((x, eval env arg) : env) body
-  func' -> App func' (eval env arg)
-
-
-lambdaTerm :: Term
-lambdaTerm = App (Lambda "x" (Lambda "y" (App (Var "x") (Var "y")))) (Lambda "z" (Var "z"))
-
--- Example environment
-environment :: Env
-environment = [] --[("z", Var "w")]
-
--- Evaluate the lambda term with the environment
-result :: Term
-result = eval environment lambdaTerm
-
-
-rr = App (Lambda "x" (Lambda "y" (Var "y"))) (Lambda "x" (Var "y"))
-
-lctest = App  (Lambda "y" (Var "y")) (Var "x")
