@@ -3,7 +3,8 @@ module ReaderMonad () where
 import Control.Monad.Reader
 import Data.Functor
 
-
+--- Simple lambda calculus evaluator in the style of the SICP evaluator that useses the reader monad.
+--- The environment is a list of pairs of variable names and their values (terms).
 type VarName = String
 
 type Vars = [VarName]
@@ -20,7 +21,8 @@ type EvalM a = Reader Env a
 
 eval :: Term -> EvalM Term
 eval (Var x) = ask >>= maybe (return $ Var x) return . lookup x
-eval (Lambda x body) = ask <&> (Lambda x . runReader (eval body) . ((x, Var x) :))
+eval (Lambda x body) =
+  ask <&> (Lambda x . runReader (eval body) . ((x, Var x) :))
 eval (App func arg) = do
   func' <- eval func
   arg' <- eval arg
@@ -28,11 +30,14 @@ eval (App func arg) = do
     Lambda x body -> local ((x, arg') :) (eval body)
     _ -> return $ App func' arg'
 
+
+
 initialEnv :: Env
 initialEnv = []
 
 evalExpr :: Term -> Term
 evalExpr expr = runReader (eval expr) initialEnv
+
 
 and' :: Term
 and' = Lambda "x" (Lambda "y" (App (App (Var "x") (Var "y")) (Var "x")))
@@ -54,3 +59,6 @@ succ' = Lambda "n" (Lambda "g" (Lambda "y" (App (Var "g") (App (App (Var "n") (V
 
 one' :: Term
 one' = App succ' zero'
+
+one''' :: Term
+one''' = Lambda "x" (Lambda "y" (App (Var "x") (Var "y")))

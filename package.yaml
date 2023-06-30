@@ -8,6 +8,7 @@ dependencies:
   - transformers
   - mtl
   - free
+  - containers
 
 data-dir: data
 
