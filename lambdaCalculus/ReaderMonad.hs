@@ -30,14 +30,11 @@ eval (App func arg) = do
     Lambda x body -> local ((x, arg') :) (eval body)
     _ -> return $ App func' arg'
 
-
-
 initialEnv :: Env
 initialEnv = []
 
 evalExpr :: Term -> Term
 evalExpr expr = runReader (eval expr) initialEnv
-
 
 and' :: Term
 and' = Lambda "x" (Lambda "y" (App (App (Var "x") (Var "y")) (Var "x")))
