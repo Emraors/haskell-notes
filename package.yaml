@@ -29,4 +29,3 @@ library:
     - recursionSchemes
     - arrows
     - freeMonads
-    - lambdaCalculus 

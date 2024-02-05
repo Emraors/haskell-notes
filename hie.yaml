@@ -8,6 +8,3 @@ cradle:
 
     - path: "./freeMonads"
       component: "Emraors:lib"
-
-    - path: "./lambdaCalculus"
-      component: "Emraors:lib"
